@@ -2,9 +2,11 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const _= require('underscore');
 const Usuario = require('../models/usuario');
+const { verificaToken } = require('../middlewares/autenticacion');
+const {verificaadminRole} = require('../middlewares/autenticacion')
 const app = express();
 
-app.get('/usuario', function (req, res) {
+app.get('/usuario',verificaToken, function (req, res) {
 
   let desde = req.query.desde || 0;
   desde = Number(desde);
@@ -35,7 +37,7 @@ app.get('/usuario', function (req, res) {
            })
 });
   
-app.post('/usuario', function (req, res) {
+app.post('/usuario',[verificaToken,verificaadminRole],function (req, res) {
   
     const {nombre,email,password,role} = req.body;
     
@@ -58,7 +60,7 @@ app.post('/usuario', function (req, res) {
 
 });
   
-app.put('/usuario/:id', async(req, res) => {
+app.put('/usuario/:id',[verificaToken, verificaadminRole] ,async(req, res) => {
   const id = req.params.id;
   const body = _.pick(req.body, ['nombre','email','img','role','estado']);
  
@@ -82,7 +84,7 @@ app.put('/usuario/:id', async(req, res) => {
     
 });
   
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id',[verificaToken, verificaadminRole] ,function (req, res) {
   let id = req.params.id;
 
  //Usuario.findByIdAndRemove(id,(err,usuarioBorrado) => {
